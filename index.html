@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Forgive Me</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #fff5f7 0%, #fff0f5 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+
+    .container {
+      text-align: center;
+      padding: 40px 30px;
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 30px;
+      box-shadow: 0 20px 40px rgba(255, 105, 140, 0.25);
+      max-width: 100%;
+      width: 420px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      border: 1px solid rgba(255, 182, 193, 0.3);
+    }
+
+    h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.4rem;
+      color: #ff6b8b;
+      margin-bottom: 35px;
+      line-height: 1.4;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+      position: relative;
+      display: inline-block;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 99%);
+      border-radius: 3px;
+    }
+
+    .buttons {
+      position: relative;
+      height: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 15px 35px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-weight: 600;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      min-width: 120px;
+      transform-origin: center;
+    }
+
+    #yesBtn {
+      background: linear-gradient(45deg, #ff6b8b 0%, #ff9a9e 100%);
+      color: white;
+    }
+
+    #yesBtn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(255, 105, 140, 0.5);
+    }
+
+    #noBtn {
+      background: linear-gradient(45deg, #a18cd1 0%, #fbc2eb 100%);
+      color: white;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    #noBtn.shrink {
+      transform: scale(0.8);
+      opacity: 0.9;
+    }
+
+    #message {
+      margin-top: 25px;
+      font-size: 1.3rem;
+      color: #ff6b8b;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+      line-height: 1.6;
+      padding: 0 10px;
+      text-align: center;
+    }
+
+    .show-message {
+      opacity: 1 !important;
+      max-height: 300px !important;
+      margin-top: 30px !important;
+    }
+
+    .hearts {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    .heart {
+      position: absolute;
+      display: inline-block;
+      font-size: 24px;
+      color: #ff6b8b;
+      opacity: 0;
+      animation: float-up 4s ease-in-out forwards;
+    }
+
+    @keyframes float-up {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-150px) rotate(20deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      button {
+        font-size: 1rem;
+        padding: 14px 30px;
+        min-width: 110px;
+      }
+
+      #noBtn.shrink {
+        transform: scale(0.7);
+      }
+    }
+
+    @media (max-width: 350px) {
+      h1 {
+        font-size: 1.7rem;
+      }
+      
+      .buttons {
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>I'm really sorry 😢<br>Will you forgive me?</h1>
+    <div class="buttons">
+      <button id="yesBtn">Yes 💕</button>
+      <button id="noBtn">No 😠</button>
+    </div>
+    <div id="message"></div>
+    <div class="hearts" id="hearts"></div>
+  </div>
+
+  <script>
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const message = document.getElementById('message');
+    const heartsContainer = document.getElementById('hearts');
+
+    // Track button size state
+    let isShrunk = false;
+    let shrinkTimeout;
+
+    function moveAndShrinkNoButton(e) {
+      if (e) e.preventDefault();
+      
+      const buttonsContainer = document.querySelector('.buttons');
+      const maxX = buttonsContainer.offsetWidth - noBtn.offsetWidth;
+      const maxY = buttonsContainer.offsetHeight - noBtn.offsetHeight;
+
+      // Calculate new position
+      let randomX = Math.random() * maxX;
+      let randomY = Math.random() * maxY;
+      
+      // Mobile boundary checking
+      if (window.innerWidth < 480) {
+        randomX = Math.max(0, Math.min(randomX, maxX));
+        randomY = Math.max(0, Math.min(randomY, maxY));
+      }
+
+      // Shrink the button
+      noBtn.classList.add('shrink');
+      isShrunk = true;
+      
+      // Move the button
+      noBtn.style.position = 'absolute';
+      noBtn.style.left = `${randomX}px`;
+      noBtn.style.top = `${randomY}px`;
+      
+      // Return to normal size after a delay
+      clearTimeout(shrinkTimeout);
+      shrinkTimeout = setTimeout(() => {
+        noBtn.classList.remove('shrink');
+        isShrunk = false;
+      }, 500);
+    }
+
+    function createHearts() {
+      heartsContainer.innerHTML = '';
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+          const heart = document.createElement('div');
+          heart.classList.add('heart');
+          heart.innerHTML = '❤️';
+          heart.style.left = Math.random() * 100 + '%';
+          heart.style.fontSize = (20 + Math.random() * 15) + 'px';
+          heart.style.animationDuration = (2 + Math.random() * 3) + 's';
+          heartsContainer.appendChild(heart);
+          
+          setTimeout(() => {
+            heart.remove();
+          }, 4000);
+        }, i * 150);
+      }
+    }
+
+    // Event listeners
+    noBtn.addEventListener('mouseenter', moveAndShrinkNoButton);
+    noBtn.addEventListener('touchstart', moveAndShrinkNoButton);
+    noBtn.addEventListener('click', moveAndShrinkNoButton);
+
+    // Prevent button from being clicked when shrunk
+    noBtn.addEventListener('mousedown', (e) => {
+      if (isShrunk) {
+        e.preventDefault();
+        moveAndShrinkNoButton();
+      }
+    });
+
+    yesBtn.addEventListener('click', () => {
+      document.querySelector('.buttons').style.display = 'none';
+      message.innerHTML = "Yaaay!! 🥹💕 Thank you for forgiving me! I promise to do better, and I'll never take you for granted. You mean the world to me. 💖✨";
+      message.classList.add('show-message');
+      createHearts();
+    });
+
+    // Initial alignment
+    window.addEventListener('load', () => {
+      const buttonsContainer = document.querySelector('.buttons');
+      noBtn.style.position = 'static';
+      buttonsContainer.style.display = 'flex';
+      buttonsContainer.style.alignItems = 'center';
+      buttonsContainer.style.justifyContent = 'center';
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      const noBtnStyle = window.getComputedStyle(noBtn);
+      if (noBtnStyle.position === 'absolute') {
+        moveAndShrinkNoButton();
+      } else {
+        noBtn.style.position = 'static';
+      }
+    });
+  </script>
+</body>
+</html>
